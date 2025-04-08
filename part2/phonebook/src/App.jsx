@@ -34,22 +34,29 @@ const App = () => {
   const addPerson = (event) => {
     event.preventDefault()
     let found = false
+    let foundPerson = null
     for (let i = 0; i < persons.length; i++) {
       if (persons[i].name === newName) {
         found = true;
+        foundPerson = persons[i]
         break;
       }
     }
     if (found == false) {
       const newPerson =  {name : newName, number : newNumber}
-
       personService.create(newPerson)
         .then(person => {
           setPersons(persons.concat(person))
           setNewName('')})
       console.log(newPerson)
     } else {
-      alert(`${newName} is already added to phonebook`)
+      const confirmUpdate = confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)
+      if (confirmUpdate === true) {
+        foundPerson.number = newNumber
+        personService.update(foundPerson.id, foundPerson)
+          .then(response => personService.getAll())
+          .then(persons => setPersons(persons))
+      }
     }
   }
 
